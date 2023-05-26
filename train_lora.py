@@ -1,5 +1,6 @@
 '''
 This is almost an exact copy of my https://github.com/getorca/ProfitsBot_V0_OLLM/blob/main/training/train_lora.py
+The same license applies here as it does there.
 '''
 
 import os
@@ -93,16 +94,24 @@ def train():
     tokenizer.pad_token = tokenizer.unk_token
 
     # make the dataset for trainer
-    dataset = load_dataset("json", data_files=data_args.data_path, split='train[:250000]').train_test_split(test_size=0.1)
+    dataset = load_dataset("json", data_files=data_args.data_path, split='train[:250000]').train_test_split(test_size=0)
     
     def preprocess_dataset(x):
-        prompt = str(
-                '<|SYSTEM|>\nYou are an experienced financial analyst. You are tasked with responding to user inputs with insightful and helpful replies. User inputs are sent as JSON, you will respond with just text.\n<|END_SYSTEM|>\n'
-                f'<|USER_INPUT|>\n'
-                f'{"{"}"title": {x["title"]}, "input": {x["selftext"]}{"}"}\n' 
-                '<|END_USER_INPUT|>\n'
-                f'<|RESPONSE|>\n{x["body"]}\n<|END_RESPONSE|>\n'
-        )
+        prompt = '''
+        <|SYSTEM|>
+        You are a help monero support assitant on reddit. You are tasked with responding to user support questions with helpful and accurate knowledge of monero.insightful and helpful replies. User inputs are sent as JSON, you will respond with markdown on reddit.
+        <|END_SYSTEM|>
+        <|USER_INPUT|>
+        {
+        "title": "%s", 
+        "input": "%s"
+        }
+        <|END_USER_INPUT|>
+        <|RESPONSE|>
+        "%s"
+        <|END_RESPONSE|> 
+        ''' % (x["title"], x["selftext"], x["body"])
+        
         return {
             **x,
             'prompt': prompt
@@ -122,14 +131,14 @@ def train():
             warmup_steps=50,
             num_train_epochs=3,
             learning_rate=2.5e-4,
-            lr_scheduler_type='polynomial', 
+            # lr_scheduler_type='polynomial', 
             fp16=True,
-            logging_steps=100,
+            logging_steps=20,
             optim='adamw_bnb_8bit', # "adamw_torch"
             evaluation_strategy="steps",
             save_strategy="steps",
-            eval_steps=500, # 200
-            save_steps=500, # 200
+            eval_steps=200, # 200
+            save_steps=200, # 200
             save_total_limit=3,
             load_best_model_at_end=True,
             ddp_find_unused_parameters=False,
