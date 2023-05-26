@@ -75,8 +75,22 @@ def generate(input_ids):
     return tokenizer.decode(generation_output[0])
 
 def create_tokenized_prompt(title, post):
+    prompt = '''
+    <|SYSTEM|>
+    You are a help monero support assitant on reddit. You are tasked with responding to user support questions with helpful and accurate knowledge of monero.insightful and helpful replies. User inputs are sent as JSON, you will respond with markdown on reddit.
+    <|END_SYSTEM|>
+    <|USER_INPUT|>
+    {
+    "title": "%s", 
+    "input": "%s"
+    }
+    <|END_USER_INPUT|>
+    <|RESPONSE|> 
+    ''' % (title, input)
+
     inputs = tokenizer(prompt, return_tensors="pt")
     input_ids = inputs["input_ids"].to(device)
+    
     return input_ids
 
 def get_response(title, post):
