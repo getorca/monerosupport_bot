@@ -104,9 +104,9 @@ def get_response(title, post):
 if __name__ ==  '__main__':
     
     reddit = praw.Reddit(
-        client_id='CXgNDZ2PlJHqgAEbjpHIqA',
-        client_secret='K7OYX62-RtG_Wq-RDZqpsZn77-QO6Q',
-        user_agent='YFNAR'
+        client_id=r_client_id,
+        client_secret=r_client_secret,
+        user_agent=r_user_agent
     )
     
     subreddit = reddit.subreddit("monerosupport")
